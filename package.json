@@ -1,0 +1,29 @@
+{
+  "name": "vite-fullstack",
+  "version": "1.0.0",
+  "description": "Full-stack Vite + React + Express setup",
+  "scripts": {
+    "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "client": "npm run dev --prefix frontend",
+    "server": "npm run dev --prefix backend",
+    "prod": "NODE_ENV=prod npm run start --prefix backend",
+    "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "build": "npm run build --prefix frontend && npm run build --prefix backend",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend",
+    "lint:fix": "npm run lint:fix --prefix frontend && npm run lint:fix --prefix backend",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "vite",
+    "react",
+    "express",
+    "fullstack"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.8.0"
+  }
+}

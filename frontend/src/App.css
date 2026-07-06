@@ -1,0 +1,263 @@
+/* Page layout: center the app in the viewport and avoid root scrolling */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100vw;
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.app-subtitle {
+  color: #888;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Add item form */
+.add-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.add-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+.add-input:focus {
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.18);
+}
+
+.add-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #4f46e5;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-button:hover:not(:disabled) {
+  background-color: #4338ca;
+}
+
+.add-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.add-button:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.refresh-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.refresh-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.total-count {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Messages */
+.error-message {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.loading-message {
+  color: #6b7280;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* Card list: scrollable container */
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  overflow-y: auto;
+  max-height: 60vh;
+  padding-right: 0.5rem;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-text {
+  flex: 1;
+  font-size: 1rem;
+  color: #111827;
+  word-break: break-word;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.edit-button,
+.delete-button {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.edit-button {
+  color: #374151;
+  background-color: #f3f4f6;
+}
+
+.edit-button:hover {
+  background-color: #e5e7eb;
+}
+
+.delete-button {
+  color: #ffffff;
+  background-color: #ef4444;
+}
+
+.delete-button:hover {
+  background-color: #dc2626;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .add-input {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .add-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .card-text {
+    color: #f9fafb;
+  }
+
+  .edit-button {
+    color: #e5e7eb;
+    background-color: #374151;
+  }
+
+  .edit-button:hover {
+    background-color: #4b5563;
+  }
+
+  .refresh-button {
+    color: #e5e7eb;
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .refresh-button:hover:not(:disabled) {
+    background-color: #4b5563;
+  }
+
+  .total-count,
+  .app-subtitle {
+    color: #9ca3af;
+  }
+}
