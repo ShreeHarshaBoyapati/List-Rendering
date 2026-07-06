@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { List, type RowComponentProps } from 'react-window';
 import './App.css';
 
 type Item = {
@@ -8,9 +9,45 @@ type Item = {
   updatedAt: string;
 };
 
+type RowData = {
+  items: Item[];
+  updateItem: (id: string, text: string) => void;
+  deleteItem: (id: string) => void;
+};
+
 const api = axios.create({
   baseURL: '/api',
 });
+
+const ITEM_HEIGHT = 80;
+
+function Row({ index, style, items, updateItem, deleteItem }: RowComponentProps<RowData>) {
+  const item = items[index];
+
+  return (
+    <div style={style} className="card-row">
+      <div className="card">
+        <span className="card-text">{item.text}</span>
+        <div className="card-actions">
+          <button
+            className="edit-button"
+            onClick={() => {
+              const next = window.prompt('Update text:', item.text);
+              if (next !== null && next.trim() !== '') {
+                updateItem(item.id, next.trim());
+              }
+            }}
+          >
+            Edit
+          </button>
+          <button className="delete-button" onClick={() => deleteItem(item.id)}>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [items, setItems] = useState<Item[]>([]);
@@ -66,6 +103,8 @@ function App() {
     fetchItems();
   }, []);
 
+  const listHeight = Math.min(items.length * ITEM_HEIGHT, 480);
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -96,29 +135,16 @@ function App() {
       {error && <p className="error-message">{error}</p>}
       {loading && items.length === 0 && <p className="loading-message">Loading items…</p>}
 
-      <ul className="card-list">
-        {items.map((item) => (
-          <li key={item.id} className="card">
-            <span className="card-text">{item.text}</span>
-            <div className="card-actions">
-              <button
-                className="edit-button"
-                onClick={() => {
-                  const next = window.prompt('Update text:', item.text);
-                  if (next !== null && next.trim() !== '') {
-                    updateItem(item.id, next.trim());
-                  }
-                }}
-              >
-                Edit
-              </button>
-              <button className="delete-button" onClick={() => deleteItem(item.id)}>
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {items.length > 0 && (
+        <List
+          className="card-list"
+          rowCount={items.length}
+          rowHeight={ITEM_HEIGHT}
+          rowComponent={Row}
+          rowProps={{ items, updateItem, deleteItem }}
+          style={{ height: listHeight, width: '100%' }}
+        />
+      )}
     </div>
   );
 }

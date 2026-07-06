@@ -17,7 +17,7 @@ type Item = {
   updatedAt: string;
 };
 
-const TOTAL_ITEMS = 100;
+const TOTAL_ITEMS = 50000;
 
 function generateItems(): Item[] {
   return Array.from({ length: TOTAL_ITEMS }, (_, i) => {
