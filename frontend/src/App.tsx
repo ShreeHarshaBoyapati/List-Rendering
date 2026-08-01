@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { List, type RowComponentProps } from 'react-window';
+import { getCachedPage, putCachedPage, deleteCachedPage, clearAllPages } from './lib/item-db';
 import './App.css';
 
 type Item = {
@@ -110,6 +111,9 @@ function App() {
     { start: number; end: number; prevCursor: string | null; nextCursor: string | null }[]
   >([]);
 
+  const idbAboveKeysRef = useRef<string[]>([]);
+  const idbBelowKeysRef = useRef<string[]>([]);
+
   const loadNextRef = useRef(() => {});
   const loadPrevRef = useRef(() => {});
 
@@ -133,6 +137,10 @@ function App() {
   const loadInitial = useCallback(async () => {
     setLoadingInitial(true);
     setError(null);
+
+    await clearAllPages();
+    idbAboveKeysRef.current = [];
+    idbBelowKeysRef.current = [];
 
     try {
       const { data, pagination } = await fetchPage(null, 'next');
@@ -172,7 +180,28 @@ function App() {
     setError(null);
 
     try {
-      const { data, pagination } = await fetchPage(nextCursor, 'next');
+      const idbKey = `next:${nextCursor}`;
+      const cached = await getCachedPage(idbKey);
+
+      let data: Item[];
+      let pagination: Pagination;
+
+      if (cached) {
+        await deleteCachedPage(idbKey);
+        idbBelowKeysRef.current = idbBelowKeysRef.current.filter((k) => k !== idbKey);
+        data = cached.items;
+        pagination = {
+          nextCursor: cached.nextCursor,
+          prevCursor: cached.prevCursor,
+          hasNext: cached.hasNext,
+          hasPrev: cached.hasPrev,
+        };
+      } else {
+        const response = await fetchPage(nextCursor, 'next');
+        data = response.data;
+        pagination = response.pagination;
+      }
+
       if (data.length === 0) {
         setHasNext(false);
         setNextCursor(null);
@@ -190,10 +219,10 @@ function App() {
       };
       pageBoundariesRef.current = [...pageBoundariesRef.current, newBoundary];
 
-      // Evict the oldest (top) page when the window exceeds MAX_PAGES.
       if (pageBoundariesRef.current.length > MAX_PAGES) {
         const dropped = pageBoundariesRef.current.shift()!;
         const droppedCount = dropped.end - dropped.start + 1;
+        const evictedItems = items.slice(0, droppedCount);
 
         const wrapperEl = document.querySelector('.card-list');
         if (wrapperEl) {
@@ -207,6 +236,24 @@ function App() {
           start: boundary.start - droppedCount,
           end: boundary.end - droppedCount,
         }));
+
+        const newTopPage = pageBoundariesRef.current[0];
+        if (newTopPage && newTopPage.prevCursor) {
+          const evictedKey = `prev:${newTopPage.prevCursor}`;
+          await putCachedPage({
+            key: evictedKey,
+            items: evictedItems,
+            prevCursor: dropped.prevCursor,
+            nextCursor: dropped.nextCursor,
+            hasNext: true,
+            hasPrev: dropped.prevCursor !== null,
+          });
+          idbAboveKeysRef.current = [...idbAboveKeysRef.current, evictedKey];
+          if (idbAboveKeysRef.current.length > 3) {
+            const oldestKey = idbAboveKeysRef.current.shift()!;
+            await deleteCachedPage(oldestKey);
+          }
+        }
       }
 
       setHasNext(pagination.hasNext);
@@ -240,7 +287,28 @@ function App() {
     setError(null);
 
     try {
-      const { data, pagination } = await fetchPage(prevCursor, 'prev');
+      const idbKey = `prev:${prevCursor}`;
+      const cached = await getCachedPage(idbKey);
+
+      let data: Item[];
+      let pagination: Pagination;
+
+      if (cached) {
+        await deleteCachedPage(idbKey);
+        idbAboveKeysRef.current = idbAboveKeysRef.current.filter((k) => k !== idbKey);
+        data = cached.items;
+        pagination = {
+          nextCursor: cached.nextCursor,
+          prevCursor: cached.prevCursor,
+          hasNext: cached.hasNext,
+          hasPrev: cached.hasPrev,
+        };
+      } else {
+        const response = await fetchPage(prevCursor, 'prev');
+        data = response.data;
+        pagination = response.pagination;
+      }
+
       if (data.length === 0) {
         setHasPrev(false);
         setPrevCursor(null);
@@ -272,7 +340,26 @@ function App() {
       if (pageBoundariesRef.current.length > MAX_PAGES) {
         const dropped = pageBoundariesRef.current.pop()!;
         const droppedCount = dropped.end - dropped.start + 1;
+        const evictedItems = items.slice(items.length - droppedCount);
         setItems((prev) => prev.slice(0, -droppedCount));
+
+        const newBottomPage = pageBoundariesRef.current[pageBoundariesRef.current.length - 1];
+        if (newBottomPage && newBottomPage.nextCursor) {
+          const evictedKey = `next:${newBottomPage.nextCursor}`;
+          await putCachedPage({
+            key: evictedKey,
+            items: evictedItems,
+            prevCursor: dropped.prevCursor,
+            nextCursor: dropped.nextCursor,
+            hasNext: dropped.nextCursor !== null,
+            hasPrev: true,
+          });
+          idbBelowKeysRef.current = [...idbBelowKeysRef.current, evictedKey];
+          if (idbBelowKeysRef.current.length > 3) {
+            const oldestKey = idbBelowKeysRef.current.shift()!;
+            await deleteCachedPage(oldestKey);
+          }
+        }
       }
 
       setHasPrev(pagination.hasPrev);
@@ -362,6 +449,19 @@ function App() {
         }));
       } else {
         setHasPrev(true);
+
+        const aboveKeys = idbAboveKeysRef.current;
+        if (aboveKeys.length > 0) {
+          const topmostKey = aboveKeys[0];
+          const cachedPage = await getCachedPage(topmostKey);
+
+          if (cachedPage && !cachedPage.hasPrev) {
+            await putCachedPage({
+              ...cachedPage,
+              items: [newItem, ...cachedPage.items],
+            });
+          }
+        }
       }
     } catch {
       setError('Failed to create item');
