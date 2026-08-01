@@ -99,6 +99,7 @@ body,
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  gap: 1rem;
 }
 
 .refresh-button {
@@ -144,15 +145,47 @@ body,
   margin: 1rem 0;
 }
 
-/* Card list: scrollable container */
+/* Infinite scroll list wrapper: flex container for the virtualized list */
+.list-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding-right: 0.5rem;
+}
+
 .card-list {
   margin: 0;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Disable native scroll-anchoring; we restore the viewport position manually
+     after prepending a previous page so the anchored row stays at the same offset. */
+  overflow-anchor: none;
 }
 
 .card-row {
   padding: 0.375rem 0;
+}
+
+.loading-more-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-style: dashed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loading-more-card {
+    background-color: #111827;
+    border-color: #4b5563;
+    color: #9ca3af;
+  }
 }
 
 .card {

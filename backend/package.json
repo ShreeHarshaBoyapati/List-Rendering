@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "prod": "node dist/server.js",
     "build": "tsc",
+    "seed": "tsx src/scripts/seed.ts",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "typecheck": "tsc --noEmit"
@@ -19,7 +20,10 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.22.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
