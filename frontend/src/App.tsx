@@ -350,37 +350,49 @@ function App() {
     if (!newText.trim()) return;
 
     try {
-      await api.post('/items', { text: newText.trim() });
+      const { data: newItem } = await api.post<Item>('/items', { text: newText.trim() });
       setNewText('');
-      await loadInitial();
+
+      if (!hasPrev) {
+        setItems((prev) => [newItem, ...prev]);
+        pageBoundariesRef.current = pageBoundariesRef.current.map((boundary) => ({
+          ...boundary,
+          start: boundary.start + 1,
+          end: boundary.end + 1,
+        }));
+      } else {
+        setHasPrev(true);
+      }
     } catch {
       setError('Failed to create item');
     }
   }
 
-  const updateItem = useCallback(
-    async (id: string, text: string) => {
-      try {
-        await api.patch(`/items/${id}`, { text });
-        await loadInitial();
-      } catch {
-        setError('Failed to update item');
-      }
-    },
-    [loadInitial]
-  );
+  const updateItem = useCallback(async (id: string, text: string) => {
+    try {
+      const { data: updated } = await api.patch<Item>(`/items/${id}`, { text });
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+    } catch {
+      setError('Failed to update item');
+    }
+  }, []);
 
   const deleteItem = useCallback(
     async (id: string) => {
       try {
         await api.delete(`/items/${id}`);
-        setItems((prev) => prev.filter((item) => item.id !== id));
-        await loadInitial();
+        setItems((prev) => {
+          const next = prev.filter((item) => item.id !== id);
+          if (next.length === 0 && hasNext && !loadingNext) {
+            loadNextRef.current();
+          }
+          return next;
+        });
       } catch {
         setError('Failed to delete item');
       }
     },
-    [loadInitial]
+    [hasNext, loadingNext]
   );
 
   const rowData: RowData = useMemo(
