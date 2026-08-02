@@ -129,9 +129,9 @@ The backend was an Express server with an in-memory array — no pagination, no 
 
 **Demos:**
 
-<video src="./docs/videos/initalListRenderwith100.webm" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/32daa580-f1c9-4309-a972-dcda8d95a9fe" controls width="100%"></video>
 
-<video src="./docs/videos/initalListRenderwith50000.webm" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/afa3508c-9347-42d3-b7ba-0445ed440951" controls width="100%"></video>
 
 ---
 
@@ -151,7 +151,7 @@ I added [`react-window`](https://github.com/bvaughn/react-window), which provide
 
 **Demo:**
 
-<video src="./docs/videos/listrenderingwithvirtualization.webm" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/7dc1d423-154f-4e87-88b9-7eaa7e8d3394" controls width="100%"></video>
 
 A note on library choice: before reaching for `react-window` or any virtualization library, check its bundle size, maintenance status, and vulnerabilities. You can also build your own — it's not much code for fixed-height rows — but I'd start with a proven library.
 
@@ -205,7 +205,7 @@ No full reloads, no scroll jumps.
 
 **Demo:**
 
-<video src="./docs/videos/paginationListRender.webm" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/404ce920-5e8b-4ce4-8cb2-c9eb3261dfc7" controls width="100%"></video>
 
 **What remained:** An edge case where a single page contains one extremely large item. The JSON response for that page could still exceed the body limit, or the heap could spike. I hardcoded the page limit, but you could make it dynamic — monitor performance metrics and adjust the limit up or down in a `useEffect` to keep things smooth.
 
@@ -243,7 +243,7 @@ When a page is restored from IDB to the heap, it's deleted from IDB — a page e
 
 **Demo:**
 
-<video src="./docs/videos/paginationWithIndexedDB.webm" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/f9d8c8e1-e055-4900-917d-3e766b6440bc" controls width="100%"></video>
 
 **What remained:** The same edge case as Phase 3 — a single extremely large item in a page could still exceed limits. IDB doesn't solve that; it solves the *number of backend calls*, not the *size of a single response*.
 
