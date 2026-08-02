@@ -28,3 +28,5 @@ Thumbs.db
 # Debug
 *.pid
 *.seed
+
+docs/tasks/
